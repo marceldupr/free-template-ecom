@@ -2,6 +2,8 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { createAuroraClient } from "@/lib/aurora";
 import { AddToCartButton } from "@/components/AddToCartButton";
+import { ProductDetailTabs } from "@/components/ProductDetailTabs";
+import { YouMayAlsoLike } from "@/components/YouMayAlsoLike";
 
 function getImageUrl(record: Record<string, unknown>): string | null {
   const field = ["image_url", "image", "thumbnail", "photo"].find((f) => record[f]);
@@ -9,6 +11,7 @@ function getImageUrl(record: Record<string, unknown>): string | null {
 }
 
 function getPrice(record: Record<string, unknown>): number | undefined {
+  if (record.on_sale && record.sale_price != null) return Number(record.sale_price);
   const field = ["price", "amount", "value"].find((f) => record[f] != null);
   return field ? Number(record[field]) : undefined;
 }
@@ -35,9 +38,7 @@ export default async function ProductPage({
   const baseUrl = process.env.NEXT_PUBLIC_AURORA_API_URL ?? "";
   const apiKey = process.env.AURORA_API_KEY ?? "";
 
-  if (!baseUrl || !apiKey) {
-    notFound();
-  }
+  if (!baseUrl || !apiKey) notFound();
 
   let catalogTableSlug: string | null = null;
   let currency = "GBP";
@@ -65,25 +66,21 @@ export default async function ProductPage({
   const name = getDisplayName(record);
   const priceCents = getPrice(record);
   const imageUrl = getImageUrl(record);
-  const skipKeys = ["id", "tenant_id", "created_at", "updated_at", "vendor_id", "vendor_name"];
-  const displayEntries = Object.entries(record).filter(
-    ([k, v]) =>
-      !skipKeys.includes(k) &&
-      !["image_url", "image", "photo", "thumbnail"].includes(k) &&
-      v !== undefined &&
-      v !== null &&
-      v !== "" &&
-      (typeof v !== "object" || (v !== null && Object.keys(v as object).length > 0))
-  );
+  const vendorName = record.vendor_name as string | undefined;
+  const categoryName = (record.category as Record<string, unknown>)?.name ?? record.subcategory ?? "Products";
+  const stockQuantity = record.stock_quantity as number | undefined;
+  const description = record.description as string | undefined;
 
   return (
     <div className="max-w-6xl mx-auto py-10 sm:py-14 px-4 sm:px-6">
-      <Link
-        href="/catalogue"
-        className="text-aurora-muted hover:text-aurora-accent mb-6 inline-block font-medium"
-      >
-        ← Back to catalogue
-      </Link>
+      <nav className="text-sm text-aurora-muted mb-6">
+        <Link href="/" className="hover:text-white">Home</Link>
+        {" > "}
+        <Link href="/catalogue" className="hover:text-white">{String(categoryName)}</Link>
+        {" > "}
+        <span className="text-white">{name}</span>
+      </nav>
+
       <div className="flex flex-col lg:flex-row gap-8 lg:gap-12">
         <div className="shrink-0 lg:w-2/5">
           <div className="rounded-component overflow-hidden aspect-square bg-aurora-surface">
@@ -96,6 +93,7 @@ export default async function ProductPage({
             )}
           </div>
         </div>
+
         <div className="flex-1 min-w-0 space-y-6">
           <h1 className="text-2xl sm:text-3xl font-bold tracking-tight">{name}</h1>
           {priceCents != null && (
@@ -103,32 +101,52 @@ export default async function ProductPage({
               {formatPrice(priceCents, currency)}
             </p>
           )}
-          {priceCents != null && catalogTableSlug && (
-            <AddToCartButton
-              recordId={id}
-              tableSlug={catalogTableSlug}
-              name={name}
-              unitAmount={priceCents}
-              className="w-full sm:w-auto px-8 py-4 rounded-component bg-aurora-accent text-aurora-bg font-bold hover:opacity-90"
-            />
+          {description && (
+            <p className="text-aurora-muted">{description}</p>
           )}
-          {displayEntries.length > 0 && (
-            <div className="space-y-3 pt-6 border-t border-aurora-border/50">
-              {displayEntries.map(([key, value]) => (
-                <div key={key} className="flex gap-4 py-3 border-b border-aurora-border/50 last:border-0">
-                  <span className="text-aurora-muted capitalize w-32 shrink-0 text-sm">
-                    {key.replace(/_/g, " ")}
-                  </span>
-                  <span className="text-white text-sm">
-                    {typeof value === "object" && value !== null
-                      ? JSON.stringify(value)
-                      : String(value)}
-                  </span>
-                </div>
-              ))}
-            </div>
+          {vendorName && (
+            <p className="text-sm">
+              Sold by:{" "}
+              <Link href="/stores" className="text-aurora-accent hover:underline">
+                {vendorName}
+              </Link>
+            </p>
           )}
+          <p className="text-sm text-aurora-muted flex items-center gap-2">
+            <span className="w-2 h-2 rounded-full bg-green-500" />
+            Free delivery on orders over £50
+          </p>
+          {stockQuantity != null && (
+            <p className="text-sm text-aurora-muted">
+              In stock ({stockQuantity} available)
+            </p>
+          )}
+          <div className="flex gap-3">
+            {priceCents != null && catalogTableSlug && (
+              <AddToCartButton
+                recordId={id}
+                tableSlug={catalogTableSlug}
+                name={name}
+                unitAmount={priceCents}
+                className="px-8 py-4 rounded-component bg-aurora-accent text-aurora-bg font-bold hover:opacity-90 flex items-center gap-2"
+              />
+            )}
+            <button
+              type="button"
+              className="px-6 py-4 rounded-component border border-aurora-border hover:bg-aurora-surface-hover"
+            >
+              Add to Favorites
+            </button>
+          </div>
         </div>
+      </div>
+
+      <div className="mt-12">
+        <ProductDetailTabs record={record} />
+      </div>
+
+      <div className="mt-12">
+        <YouMayAlsoLike productId={id} catalogTableSlug={catalogTableSlug} />
       </div>
     </div>
   );

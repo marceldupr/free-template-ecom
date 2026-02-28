@@ -1,7 +1,10 @@
 import type { Metadata } from "next";
+import Script from "next/script";
 import "./globals.css";
 import { CartProvider } from "@/components/CartProvider";
+import { StoreProvider } from "@/components/StoreContext";
 import { Nav } from "@/components/Nav";
+import { Footer } from "@/components/Footer";
 
 const siteName =
   process.env.NEXT_PUBLIC_SITE_NAME ?? "Store";
@@ -27,10 +30,21 @@ export default function RootLayout({
           } as React.CSSProperties
         }
       >
-        <CartProvider>
-          <Nav />
-          <main className="min-h-[calc(100vh-3.5rem)]">{children}</main>
-        </CartProvider>
+        <StoreProvider>
+          <CartProvider>
+            <Nav />
+            <main className="min-h-[calc(100vh-3.5rem)] flex flex-col">
+              {children}
+              <Footer />
+            </main>
+          </CartProvider>
+        </StoreProvider>
+        {process.env.NEXT_PUBLIC_AURORA_API_URL && process.env.NEXT_PUBLIC_TENANT_SLUG && (
+          <Script
+            src={`${process.env.NEXT_PUBLIC_AURORA_API_URL.replace(/\/$/, "")}/api/holmes/v1/script.js?site=${process.env.NEXT_PUBLIC_TENANT_SLUG}`}
+            strategy="afterInteractive"
+          />
+        )}
       </body>
     </html>
   );

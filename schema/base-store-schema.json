@@ -1,0 +1,191 @@
+{
+  "version": "1.0",
+  "description": "Aurora showcase store schema for e-commerce. Import via Aurora Data Builder or store provision API.",
+  "tables": [
+    {
+      "slug": "vendors",
+      "name": "Vendors",
+      "icon": "Store",
+      "fields": [
+        { "slug": "name", "type": "text", "name": "Name", "required": true },
+        { "slug": "email", "type": "text", "name": "Email", "required": false },
+        { "slug": "address", "type": "text", "name": "Address", "required": false },
+        { "slug": "image_url", "type": "text", "name": "Image URL", "required": false },
+        {
+          "slug": "status",
+          "type": "select",
+          "name": "Status",
+          "required": false,
+          "options": ["active", "inactive", "pending"]
+        }
+      ]
+    },
+    {
+      "slug": "categories",
+      "name": "Categories",
+      "icon": "Folder",
+      "fields": [
+        { "slug": "name", "type": "text", "name": "Name", "required": true },
+        { "slug": "slug", "type": "text", "name": "Slug", "required": false }
+      ]
+    },
+    {
+      "slug": "products",
+      "name": "Products",
+      "icon": "Package",
+      "fields": [
+        { "slug": "name", "type": "text", "name": "Name", "required": true },
+        { "slug": "description", "type": "text", "name": "Description", "required": false },
+        { "slug": "price", "type": "currency", "name": "Price", "required": false },
+        { "slug": "sale_price", "type": "currency", "name": "Sale Price", "required": false },
+        { "slug": "on_sale", "type": "boolean", "name": "On Sale", "required": false },
+        { "slug": "sku", "type": "text", "name": "SKU", "required": false },
+        { "slug": "image_url", "type": "text", "name": "Image URL", "required": false },
+        { "slug": "stock_quantity", "type": "number", "name": "Stock", "required": false },
+        { "slug": "subcategory", "type": "text", "name": "Subcategory", "required": false },
+        { "slug": "weight", "type": "text", "name": "Weight", "required": false },
+        { "slug": "storage_instructions", "type": "text", "name": "Storage Instructions", "required": false },
+        { "slug": "features", "type": "text", "name": "Features (JSON array)", "required": false },
+        { "slug": "tags", "type": "text", "name": "Tags (comma-separated)", "required": false },
+        {
+          "slug": "category_id",
+          "type": "relation",
+          "name": "Category",
+          "required": false,
+          "relatedTable": "categories"
+        },
+        {
+          "slug": "vendor_id",
+          "type": "relation",
+          "name": "Vendor",
+          "required": false,
+          "relatedTable": "vendors"
+        }
+      ]
+    },
+    {
+      "slug": "promotions",
+      "name": "Promotions",
+      "icon": "Tag",
+      "fields": [
+        { "slug": "name", "type": "text", "name": "Name", "required": true },
+        { "slug": "description", "type": "text", "name": "Description", "required": false },
+        {
+          "slug": "discount_type",
+          "type": "select",
+          "name": "Discount Type",
+          "required": false,
+          "options": ["percent", "fixed", "bogo"]
+        },
+        { "slug": "discount_value", "type": "number", "name": "Discount Value", "required": false },
+        { "slug": "start_date", "type": "date", "name": "Start Date", "required": false },
+        { "slug": "end_date", "type": "date", "name": "End Date", "required": false },
+        { "slug": "min_order", "type": "currency", "name": "Min Order (cents)", "required": false },
+        { "slug": "product_ids", "type": "text", "name": "Product IDs (JSON array)", "required": false },
+        {
+          "slug": "vendor_id",
+          "type": "relation",
+          "name": "Vendor",
+          "required": false,
+          "relatedTable": "vendors"
+        }
+      ]
+    },
+    {
+      "slug": "orders",
+      "name": "Orders",
+      "icon": "ShoppingCart",
+      "fields": [
+        { "slug": "user_id", "type": "text", "name": "User ID", "required": false },
+        {
+          "slug": "status",
+          "type": "select",
+          "name": "Status",
+          "required": false,
+          "options": ["pending", "paid", "shipped", "cancelled"]
+        },
+        { "slug": "total", "type": "currency", "name": "Total", "required": false },
+        { "slug": "stripe_session_id", "type": "text", "name": "Stripe session", "required": false },
+        { "slug": "payment_status", "type": "text", "name": "Payment status", "required": false },
+        { "slug": "delivery_date", "type": "date", "name": "Delivery date", "required": false },
+        { "slug": "delivery_slot", "type": "text", "name": "Delivery slot", "required": false },
+        { "slug": "shipping_address", "type": "text", "name": "Shipping address", "required": false },
+        { "slug": "delivery_notes", "type": "text", "name": "Delivery notes", "required": false }
+      ]
+    },
+    {
+      "slug": "order_items",
+      "name": "Order Items",
+      "icon": "List",
+      "fields": [
+        {
+          "slug": "order_id",
+          "type": "relation",
+          "name": "Order",
+          "required": false,
+          "relatedTable": "orders"
+        },
+        {
+          "slug": "product_id",
+          "type": "relation",
+          "name": "Product",
+          "required": false,
+          "relatedTable": "products"
+        },
+        { "slug": "quantity", "type": "number", "name": "Quantity", "required": false },
+        { "slug": "price", "type": "currency", "name": "Price", "required": false },
+        { "slug": "status", "type": "text", "name": "Status", "required": false },
+        { "slug": "out_of_stock", "type": "boolean", "name": "Out of stock", "required": false },
+        {
+          "slug": "substituted_product_id",
+          "type": "relation",
+          "name": "Substituted product",
+          "required": false,
+          "relatedTable": "products"
+        },
+        { "slug": "substitution_reason", "type": "text", "name": "Substitution reason", "required": false }
+      ]
+    },
+    {
+      "slug": "product_substitutions",
+      "name": "Product Substitutions",
+      "icon": "List",
+      "fields": [
+        {
+          "slug": "product_id",
+          "type": "relation",
+          "name": "Original product",
+          "required": true,
+          "relatedTable": "products"
+        },
+        {
+          "slug": "substitute_product_id",
+          "type": "relation",
+          "name": "Allowed substitute",
+          "required": true,
+          "relatedTable": "products"
+        }
+      ]
+    },
+    {
+      "slug": "addresses",
+      "name": "Addresses",
+      "icon": "MapPin",
+      "fields": [
+        { "slug": "user_id", "type": "text", "name": "User ID", "required": false },
+        {
+          "slug": "type",
+          "type": "select",
+          "name": "Type",
+          "required": false,
+          "options": ["shipping", "billing"]
+        },
+        { "slug": "line1", "type": "text", "name": "Address line 1", "required": false },
+        { "slug": "city", "type": "text", "name": "City", "required": false },
+        { "slug": "postal_code", "type": "text", "name": "Postal code", "required": false },
+        { "slug": "country", "type": "text", "name": "Country", "required": false },
+        { "slug": "is_default", "type": "boolean", "name": "Default address", "required": false }
+      ]
+    }
+  ]
+}
