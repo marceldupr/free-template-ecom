@@ -77,7 +77,16 @@ export default async function PromotionsPage() {
             {records.map((record) => {
               const id = String(record.id ?? "");
               const name = getDisplayName(record);
-              const priceCents = getPrice(record);
+              const sellByWeight = Boolean(record.sell_by_weight);
+              const unit = (record.unit as string) || "kg";
+              const pricePerUnit = record.price_per_unit as number | undefined;
+              const rawPrice = getPrice(record);
+              const priceCents =
+                sellByWeight && pricePerUnit != null
+                  ? Math.round(pricePerUnit * 100)
+                  : rawPrice != null
+                    ? Math.round(rawPrice * 100)
+                    : undefined;
               const imageUrl = getImageUrl(record);
               const isOnSale = record.on_sale === true;
 
@@ -102,9 +111,11 @@ export default async function PromotionsPage() {
                       )}
                     </div>
                     <p className="font-semibold text-sm truncate">{name}</p>
-                    {priceCents != null && (
+                    {(priceCents != null || (sellByWeight && pricePerUnit != null)) && (
                       <p className="text-sm mt-1 font-bold text-aurora-accent">
-                        {formatPrice(priceCents, currency)}
+                        {sellByWeight && pricePerUnit != null
+                          ? formatPrice(Math.round(pricePerUnit * 100), currency) + `/${unit}`
+                          : formatPrice(priceCents!, currency)}
                       </p>
                     )}
                   </Link>
@@ -115,6 +126,8 @@ export default async function PromotionsPage() {
                         tableSlug={catalogTableSlug}
                         name={name}
                         unitAmount={priceCents}
+                        sellByWeight={sellByWeight}
+                        unit={unit}
                       />
                     </div>
                   )}

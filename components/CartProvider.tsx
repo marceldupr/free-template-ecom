@@ -16,6 +16,9 @@ export interface CartItem {
   name: string;
   unitAmount: number;
   quantity: number;
+  /** Variable-weight product: quantity is weight, unit is display unit */
+  sellByWeight?: boolean;
+  unit?: string;
 }
 
 const CART_KEY = "aurora-cart";
@@ -37,7 +40,7 @@ function saveCart(items: CartItem[]) {
 
 interface CartContextValue {
   items: CartItem[];
-  addItem: (item: Omit<CartItem, "quantity" | "id"> & { quantity?: number }) => void;
+  addItem: (item: Omit<CartItem, "id" | "quantity"> & { quantity?: number }) => void;
   removeItem: (id: string) => void;
   updateQuantity: (id: string, quantity: number) => void;
   clearCart: () => void;
@@ -59,12 +62,12 @@ export function CartProvider({ children }: { children: ReactNode }) {
     if (mounted) saveCart(items);
   }, [items, mounted]);
 
-  const addItem = useCallback((item: Omit<CartItem, "quantity" | "id"> & { quantity?: number }) => {
+  const addItem = useCallback((item: Omit<CartItem, "id" | "quantity"> & { quantity?: number }) => {
     const qty = item.quantity ?? 1;
     const cartId = `${item.tableSlug}:${item.recordId}`;
     setItems((prev) => {
       const existing = prev.find((i) => i.id === cartId);
-      if (existing) {
+      if (existing && existing.sellByWeight === item.sellByWeight) {
         return prev.map((i) =>
           i.id === cartId ? { ...i, quantity: i.quantity + qty } : i
         );

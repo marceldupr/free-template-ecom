@@ -139,7 +139,16 @@ function CatalogueContent() {
             {hits.map((record) => {
               const id = (record.recordId ?? record.id) as string;
               const name = getDisplayName(record);
-              const priceCents = getPrice(record);
+              const rawPrice = getPrice(record);
+              const sellByWeight = Boolean(record.sell_by_weight);
+              const unit = (record.unit as string) || "kg";
+              const pricePerUnit = record.price_per_unit as number | undefined;
+              const priceCents =
+                sellByWeight && pricePerUnit != null
+                  ? Math.round(pricePerUnit * 100)
+                  : rawPrice != null
+                    ? Math.round(rawPrice * 100)
+                    : undefined;
               const imageUrl = getImageUrl(record);
 
               return (
@@ -164,9 +173,11 @@ function CatalogueContent() {
                     <p className="font-semibold text-sm sm:text-base truncate group-hover:text-aurora-accent transition-colors">
                       {name}
                     </p>
-                    {priceCents != null && (
+                    {(priceCents != null || (sellByWeight && pricePerUnit != null)) && (
                       <p className="text-sm mt-1 font-bold text-aurora-accent">
-                        {formatPrice(priceCents, currency)}
+                        {sellByWeight && pricePerUnit != null
+                          ? formatPrice(Math.round(pricePerUnit * 100), currency) + `/${unit}`
+                          : formatPrice(priceCents!, currency)}
                       </p>
                     )}
                   </Link>
@@ -177,6 +188,8 @@ function CatalogueContent() {
                         tableSlug={catalogSlug}
                         name={name}
                         unitAmount={priceCents}
+                        sellByWeight={sellByWeight}
+                        unit={unit}
                       />
                     </div>
                   )}

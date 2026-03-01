@@ -86,7 +86,9 @@ export default function CartPage() {
                 <div className="flex-1 min-w-0">
                   <p className="font-medium">{item.name}</p>
                   <p className="text-sm text-aurora-muted">
-                    {formatPrice(item.unitAmount)} × {item.quantity}
+                    {formatPrice(item.unitAmount)}
+                    {item.sellByWeight ? `/${item.unit || "kg"}` : ""} × {item.quantity}
+                    {item.sellByWeight ? ` ${item.unit || "kg"}` : ""}
                   </p>
                 </div>
                 <div className="flex items-center gap-4">

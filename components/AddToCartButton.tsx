@@ -1,5 +1,6 @@
 "use client";
 
+import { useState } from "react";
 import { useCart } from "./CartProvider";
 
 interface AddToCartButtonProps {
@@ -7,6 +8,9 @@ interface AddToCartButtonProps {
   tableSlug: string;
   name: string;
   unitAmount: number;
+  /** Variable-weight product: show weight input, unitAmount = price_per_unit (cents) */
+  sellByWeight?: boolean;
+  unit?: string;
   className?: string;
 }
 
@@ -15,9 +19,53 @@ export function AddToCartButton({
   tableSlug,
   name,
   unitAmount,
+  sellByWeight,
+  unit = "kg",
   className,
 }: AddToCartButtonProps) {
   const { addItem } = useCart();
+  const [weight, setWeight] = useState<string>("1");
+
+  if (sellByWeight) {
+    const handleAdd = () => {
+      const w = parseFloat(weight);
+      if (!Number.isFinite(w) || w <= 0) return;
+      addItem({
+        recordId,
+        tableSlug,
+        name,
+        unitAmount,
+        quantity: w,
+        sellByWeight: true,
+        unit,
+      });
+    };
+    return (
+      <div className="flex flex-wrap items-center gap-2">
+        <div className="flex items-center gap-2">
+          <input
+            type="number"
+            step="0.1"
+            min="0.1"
+            value={weight}
+            onChange={(e) => setWeight(e.target.value)}
+            className="w-20 px-2 py-2 rounded-component border border-aurora-border bg-aurora-bg text-white"
+          />
+          <span className="text-aurora-muted">{unit}</span>
+        </div>
+        <button
+          type="button"
+          onClick={handleAdd}
+          className={
+            className ??
+            "px-4 py-2 rounded-component bg-aurora-accent text-aurora-bg font-medium hover:opacity-90 transition-opacity"
+          }
+        >
+          Add to cart
+        </button>
+      </div>
+    );
+  }
 
   return (
     <button

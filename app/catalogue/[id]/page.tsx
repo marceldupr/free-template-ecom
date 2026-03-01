@@ -64,7 +64,12 @@ export default async function ProductPage({
   }
 
   const name = getDisplayName(record);
-  const priceCents = getPrice(record);
+  const rawPrice = getPrice(record);
+  const priceCents = rawPrice != null ? Math.round(rawPrice * 100) : undefined;
+  const sellByWeight = Boolean(record.sell_by_weight);
+  const unit = (record.unit as string) || "kg";
+  const pricePerUnit = record.price_per_unit as number | undefined;
+  const pricePerUnitCents = pricePerUnit != null ? Math.round(pricePerUnit * 100) : undefined;
   const imageUrl = getImageUrl(record);
   const vendorName = record.vendor_name as string | undefined;
   const categoryName = (record.category as Record<string, unknown>)?.name ?? record.subcategory ?? "Products";
@@ -96,11 +101,15 @@ export default async function ProductPage({
 
         <div className="flex-1 min-w-0 space-y-6">
           <h1 className="text-2xl sm:text-3xl font-bold tracking-tight">{name}</h1>
-          {priceCents != null && (
+          {sellByWeight && pricePerUnitCents != null ? (
+            <p className="text-xl font-bold text-aurora-accent">
+              {formatPrice(pricePerUnitCents, currency)}/{unit}
+            </p>
+          ) : priceCents != null ? (
             <p className="text-xl font-bold text-aurora-accent">
               {formatPrice(priceCents, currency)}
             </p>
-          )}
+          ) : null}
           {description && (
             <p className="text-aurora-muted">{description}</p>
           )}
@@ -122,12 +131,14 @@ export default async function ProductPage({
             </p>
           )}
           <div className="flex gap-3">
-            {priceCents != null && catalogTableSlug && (
+            {((sellByWeight && pricePerUnitCents != null) || priceCents != null) && catalogTableSlug && (
               <AddToCartButton
                 recordId={id}
                 tableSlug={catalogTableSlug}
                 name={name}
-                unitAmount={priceCents}
+                unitAmount={sellByWeight ? pricePerUnitCents! : priceCents!}
+                sellByWeight={sellByWeight}
+                unit={unit}
                 className="px-8 py-4 rounded-component bg-aurora-accent text-aurora-bg font-bold hover:opacity-90 flex items-center gap-2"
               />
             )}

@@ -61,6 +61,7 @@ export default function CheckoutPage() {
           productId: i.recordId,
           tableSlug: i.tableSlug,
           quantity: i.quantity,
+          sellByWeight: i.sellByWeight,
           priceData: {
             unitAmount: i.unitAmount,
             currency: "GBP",
@@ -249,7 +250,9 @@ export default function CheckoutPage() {
             <div className="space-y-2 max-h-48 overflow-y-auto">
               {items.map((i) => (
                 <div key={i.id} className="flex justify-between text-sm">
-                  <span className="truncate max-w-[180px]">{i.name} x{i.quantity}</span>
+                  <span className="truncate max-w-[180px]">
+                    {i.name} {i.sellByWeight ? `× ${i.quantity} ${i.unit || "kg"}` : `x${i.quantity}`}
+                  </span>
                   <span>{formatPrice(i.unitAmount * i.quantity)}</span>
                 </div>
               ))}

@@ -117,6 +117,7 @@ export interface CheckoutLineItem {
   productId?: string;
   tableSlug?: string;
   quantity?: number;
+  sellByWeight?: boolean;
   priceData: {
     unitAmount: number;
     currency?: string;
