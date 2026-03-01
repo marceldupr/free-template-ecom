@@ -1,7 +1,7 @@
 import { AuroraClient } from "@aurora-studio/sdk";
 
 const baseUrl = process.env.NEXT_PUBLIC_AURORA_API_URL ?? "";
-const apiKey = process.env.AURORA_API_KEY ?? "";
+const apiKey = process.env.NEXT_PUBLIC_AURORA_API_KEY ?? process.env.AURORA_API_KEY ?? "";
 
 export function createAuroraClient(): AuroraClient {
   return new AuroraClient({ baseUrl, apiKey });
@@ -163,6 +163,53 @@ export async function createCheckoutSession(
     throw new Error(err.error ?? "Checkout failed");
   }
   return res.json();
+}
+
+export interface AcmeSession {
+  session_id: string;
+  line_items: Array<{
+    name?: string;
+    quantity?: number;
+    unitAmount?: number;
+  }>;
+  total: number;
+  currency: string;
+  success_url: string;
+  cancel_url: string;
+  requireShipping?: boolean;
+}
+
+/** Fetch ACME checkout session. GET /api/tenants/:tenant/store/checkout/acme */
+export async function getAcmeSession(sessionId: string): Promise<AcmeSession> {
+  const { base, tenant } = api();
+  const res = await fetch(
+    `${base}/api/tenants/${tenant}/store/checkout/acme?session=${encodeURIComponent(sessionId)}`,
+    { headers: apiKey ? { "X-Api-Key": apiKey } : undefined }
+  );
+  if (!res.ok) {
+    const err = (await res.json().catch(() => ({}))) as { error?: string };
+    throw new Error(err.error ?? "Session not found");
+  }
+  return res.json();
+}
+
+/** Complete ACME checkout. POST /api/tenants/:tenant/store/checkout/acme/complete */
+export async function completeAcmeCheckout(
+  sessionId: string,
+  shippingAddress?: { line1?: string; line2?: string; city?: string; postal_code?: string; country?: string }
+): Promise<{ success: boolean; redirectUrl?: string }> {
+  const { base, tenant } = api();
+  const res = await fetch(`${base}/api/tenants/${tenant}/store/checkout/acme/complete`, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      ...(apiKey ? { "X-Api-Key": apiKey } : {}),
+    },
+    body: JSON.stringify({ sessionId, shippingAddress }),
+  });
+  const data = (await res.json().catch(() => ({}))) as { success?: boolean; redirectUrl?: string; error?: string };
+  if (!res.ok) throw new Error(data.error ?? "Payment failed");
+  return { success: data.success ?? true, redirectUrl: data.redirectUrl };
 }
 
 export interface HolmesInferResult {

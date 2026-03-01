@@ -10,7 +10,7 @@ A full-featured retail storefront for Aurora Studio. Showcases Aurora capabiliti
 - **Meilisearch Search** — Live product search dropdown in header
 - **Product Catalogue** — Featured, Bestsellers, New Arrivals, On Sale tabs; category filters
 - **Product Detail** — Tabs (Details, Nutrition, Feedback), You May Also Like
-- **Basket & Checkout** — Multi-step checkout with delivery slot selection
+- **Basket & Checkout** — Multi-step checkout with delivery slot selection; ACME test payment flow (`/checkout/acme`, `/checkout/success`)
 - **Holmes** — AI mission inference; one-click bundle checkout when enabled
 - **Promotions** — Store-specific offers and on-sale products
 - **Account** — Profile, Orders, Addresses (integrate Supabase Auth for full features)
@@ -57,6 +57,16 @@ For **delivery slots**, add vendors with `location` (PostGIS), create `vendor_ca
 Holmes is auto-injected when `NEXT_PUBLIC_AURORA_API_URL` and `NEXT_PUBLIC_TENANT_SLUG` are set. It captures behavioural signals and surfaces a mission-based product bundle when confidence is high. Enable Holmes in your tenant commerce config.
 
 For standalone deployment, set `NEXT_PUBLIC_APP_URL` on the Aurora API to your storefront URL so Holmes redirects correctly after one-click checkout.
+
+## ACME Checkout
+
+When Stripe is not configured, the template uses **ACME** — a test payment provider. Checkout flow:
+
+1. Create session via `/store/checkout/sessions` → returns ACME session URL
+2. User completes payment at `/checkout/acme?session=acme_xxx`
+3. Redirect to `/checkout/success` or custom success URL
+
+The API redirects to `/checkout/acme` when the success path starts with `/checkout`. Configure `NEXT_PUBLIC_APP_URL` for correct redirects in standalone deployment.
 
 ## Deploy to Vercel
 
