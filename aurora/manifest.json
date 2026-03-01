@@ -1,0 +1,11 @@
+{
+  "id": "free-ecom",
+  "name": "E-commerce",
+  "version": "1.0.0",
+  "catalogTableSlug": "products",
+  "features": ["pickwalk", "zones", "picked_at", "variable_weight", "ean", "reports", "workflows"],
+  "extensions": {
+    "workers": "./extensions/workers.js",
+    "routes": "./extensions/routes.js"
+  }
+}
