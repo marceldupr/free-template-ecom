@@ -51,14 +51,21 @@ export function Nav() {
           </div>
 
           <div className="hidden md:block flex-1 max-w-md mx-4">
-            <SearchDropdown
-              placeholder={
-                store
-                  ? `Search products in ${store.name}…`
-                  : "Select a store to search products…"
-              }
-              vendorId={store?.id}
-            />
+            {store ? (
+              <SearchDropdown
+                placeholder={`Search products in ${store.name}…`}
+                vendorId={store.id}
+              />
+            ) : (
+              <Link href="/stores" className="block cursor-pointer">
+                <span className="pointer-events-none block">
+                  <SearchDropdown
+                    placeholder="Select a store to search products…"
+                    vendorId={undefined}
+                  />
+                </span>
+              </Link>
+            )}
           </div>
 
           <div className="flex items-center gap-3 shrink-0">

@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import { useStore } from "@/components/StoreContext";
-import { getStores, type StoreItem } from "@/lib/aurora";
+import type { StoreItem } from "@/lib/aurora";
 
 function haversineDistance(
   lat1: number,
@@ -38,8 +38,13 @@ export default function StoresPage() {
     let cancelled = false;
     async function load() {
       try {
-        const res = await getStores();
+        const res = await fetch("/api/stores").then((r) => r.json());
         if (cancelled) return;
+        if (res.error) {
+          setError(res.error);
+          setStores([]);
+          return;
+        }
         let list = res.data ?? [];
         if (location && list.length > 0) {
           const userLat = location.lat;

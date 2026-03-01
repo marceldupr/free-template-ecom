@@ -182,7 +182,7 @@ function CatalogueContent() {
                     )}
                   </Link>
                   {priceCents != null && catalogSlug && (
-                    <div className="mt-3" onClick={(e) => e.preventDefault()}>
+                    <div className="mt-3">
                       <AddToCartButton
                         recordId={id}
                         tableSlug={catalogSlug}

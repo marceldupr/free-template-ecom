@@ -120,7 +120,7 @@ export default async function PromotionsPage() {
                     )}
                   </Link>
                   {priceCents != null && catalogTableSlug && (
-                    <div className="mt-3" onClick={(e) => e.preventDefault()}>
+                    <div className="mt-3">
                       <AddToCartButton
                         recordId={id}
                         tableSlug={catalogTableSlug}

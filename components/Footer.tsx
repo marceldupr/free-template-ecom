@@ -16,9 +16,13 @@ export function Footer() {
           <div>
             <h3 className="font-semibold mb-3">Shop</h3>
             <ul className="space-y-2 text-sm text-aurora-muted">
-              <li><Link href="/catalogue" className="hover:text-white">Fresh Produce</Link></li>
-              <li><Link href="/catalogue" className="hover:text-white">Bakery</Link></li>
-              <li><Link href="/catalogue" className="hover:text-white">Dairy</Link></li>
+              <li><Link href="/catalogue?category=bakery-items" className="hover:text-white">Bakery Items</Link></li>
+              <li><Link href="/catalogue?category=frozen-foods" className="hover:text-white">Frozen Foods</Link></li>
+              <li><Link href="/catalogue?category=vegetables" className="hover:text-white">Vegetables</Link></li>
+              <li><Link href="/catalogue?category=fruits" className="hover:text-white">Fruits</Link></li>
+              <li><Link href="/catalogue?category=dairy-products" className="hover:text-white">Dairy Products</Link></li>
+              <li><Link href="/catalogue?category=snacks" className="hover:text-white">Snacks</Link></li>
+              <li><Link href="/catalogue?category=beverages" className="hover:text-white">Beverages</Link></li>
             </ul>
           </div>
           <div>

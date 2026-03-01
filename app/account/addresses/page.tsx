@@ -14,27 +14,9 @@ export default function AddressesPage() {
         </button>
       </div>
       <div className="space-y-4">
-        <div className="p-4 rounded-component bg-aurora-surface border-2 border-aurora-accent/50">
-          <p className="font-medium">Default Address</p>
-          <p className="text-aurora-muted text-sm">Cycleway Six, Southwark, London, SE1</p>
-          <button type="button" className="text-aurora-muted hover:text-white text-sm mt-2">
-            ✏️ Edit
-          </button>
-        </div>
-        <div className="p-4 rounded-component bg-aurora-surface border border-aurora-border">
-          <p className="font-medium">12A Mepham Street, Lambeth, London, SE1 8SQ</p>
-          <div className="flex gap-2 mt-2">
-            <button type="button" className="text-aurora-muted hover:text-white text-sm">
-              ✏️ Edit
-            </button>
-            <button type="button" className="text-aurora-muted hover:text-white text-sm">
-              ⭐ Set default
-            </button>
-            <button type="button" className="text-red-400 hover:text-red-300 text-sm">
-              🗑 Delete
-            </button>
-          </div>
-        </div>
+        <p className="text-aurora-muted py-8 text-center rounded-component bg-aurora-surface border border-aurora-border">
+          You haven&apos;t added any addresses yet.
+        </p>
       </div>
     </div>
   );

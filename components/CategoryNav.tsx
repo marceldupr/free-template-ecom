@@ -2,13 +2,13 @@ import Link from "next/link";
 import { createAuroraClient } from "@/lib/aurora";
 
 const DEFAULT_CATEGORIES = [
-  { name: "Fresh Produce", slug: "fresh-produce" },
-  { name: "Meat & Seafood", slug: "meat-seafood" },
-  { name: "Pantry Staples", slug: "pantry-staples" },
-  { name: "Bakery", slug: "bakery" },
+  { name: "Bakery Items", slug: "bakery-items" },
+  { name: "Frozen Foods", slug: "frozen-foods" },
+  { name: "Vegetables", slug: "vegetables" },
+  { name: "Fruits", slug: "fruits" },
+  { name: "Dairy Products", slug: "dairy-products" },
+  { name: "Snacks", slug: "snacks" },
   { name: "Beverages", slug: "beverages" },
-  { name: "Dairy", slug: "dairy" },
-  { name: "Frozen & Ready", slug: "frozen" },
 ];
 
 export async function CategoryNav() {

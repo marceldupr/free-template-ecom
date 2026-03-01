@@ -42,9 +42,23 @@ export default function AccountPage() {
         <main className="md:col-span-3">
           <div className="p-6 rounded-component bg-aurora-surface border border-aurora-border">
             <h2 className="text-lg font-semibold mb-4">Profile</h2>
-            <p className="text-aurora-muted">
-              Sign in to manage your profile. Connect your Aurora tenant with Supabase Auth for full account features.
+            <p className="text-aurora-muted mb-4">
+              You&apos;re not signed in. Sign in or create an account to manage your profile, orders, and addresses.
             </p>
+            <div className="flex flex-wrap gap-3">
+              <Link
+                href="/account"
+                className="px-4 py-2 rounded-component bg-aurora-accent text-aurora-bg font-medium hover:opacity-90"
+              >
+                Sign in
+              </Link>
+              <Link
+                href="/account"
+                className="px-4 py-2 rounded-component border border-aurora-border hover:bg-aurora-surface font-medium"
+              >
+                Create account
+              </Link>
+            </div>
           </div>
         </main>
       </div>
