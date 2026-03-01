@@ -1,11 +1,9 @@
 #!/usr/bin/env node
 /**
- * Provision the e-commerce schema for your Aurora tenant.
+ * Provision the e-commerce schema for your Aurora tenant (first run).
+ * Uses POST /v1/provision-schema with API key. Base: marketplace-base (vendors, products, vendor_products).
  *
- * Requires: AURORA_API_URL, AURORA_API_KEY, TENANT_SLUG in env.
- * The schema/import API requires tenant admin auth. If using an API key,
- * it may return 401/403 — in that case, import manually in Aurora Studio:
- * Data Builder → Import from JSON → use schema/base-store-schema-import.json
+ * Requires: AURORA_API_URL, AURORA_API_KEY (tenant scope). TENANT_SLUG is not required for the API.
  */
 import { readFileSync } from "fs";
 import { fileURLToPath } from "url";
@@ -15,41 +13,35 @@ const __dirname = dirname(fileURLToPath(import.meta.url));
 
 const apiUrl = process.env.AURORA_API_URL || process.env.NEXT_PUBLIC_AURORA_API_URL;
 const apiKey = process.env.AURORA_API_KEY;
-const tenantSlug = process.env.TENANT_SLUG || process.env.NEXT_PUBLIC_TENANT_SLUG;
 
-if (!apiUrl || !apiKey || !tenantSlug) {
-  console.error("Usage: AURORA_API_URL=... AURORA_API_KEY=... TENANT_SLUG=... pnpm schema:provision");
-  console.error("Or set NEXT_PUBLIC_AURORA_API_URL, AURORA_API_KEY, NEXT_PUBLIC_TENANT_SLUG");
+if (!apiUrl || !apiKey) {
+  console.error("Usage: AURORA_API_URL=... AURORA_API_KEY=... pnpm schema:provision");
+  console.error("Or set NEXT_PUBLIC_AURORA_API_URL and AURORA_API_KEY");
   process.exit(1);
 }
 
-const schemaPath = join(__dirname, "../schema/base-store-schema-import.json");
+const schemaPath = join(__dirname, "../aurora/schema.json");
 const schema = JSON.parse(readFileSync(schemaPath, "utf8"));
 
 const base = apiUrl.replace(/\/$/, "");
-const url = `${base}/api/tenants/${tenantSlug}/schema/import`;
+const url = `${base}/v1/provision-schema`;
 
-console.log(`POST ${url}`);
+console.log(`POST ${url} (base: marketplace-base)`);
 const res = await fetch(url, {
   method: "POST",
   headers: {
     "Content-Type": "application/json",
     "X-Api-Key": apiKey,
   },
-  body: JSON.stringify(schema),
+  body: JSON.stringify({ schema, base: "marketplace-base" }),
 });
 
 if (!res.ok) {
   const err = await res.text();
-  console.error(`Schema import failed: ${res.status} ${res.statusText}`);
+  console.error(`Provision failed: ${res.status} ${res.statusText}`);
   console.error(err);
-  if (res.status === 401 || res.status === 403) {
-    console.error("\nThe schema/import API requires tenant admin auth.");
-    console.error("Import manually: Aurora Studio → Data Builder → Import from JSON");
-    console.error(`Use the file: apps/free-templates/ecom/schema/base-store-schema-import.json`);
-  }
   process.exit(1);
 }
 
 const data = await res.json();
-console.log("Schema imported successfully:", JSON.stringify(data, null, 2));
+console.log("Schema provisioned:", JSON.stringify(data, null, 2));

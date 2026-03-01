@@ -199,7 +199,11 @@ function CatalogueContent() {
           </div>
           {hits.length === 0 && (
             <p className="text-center text-aurora-muted py-12">
-              No products yet. Add products in Aurora Studio.
+              {category
+                ? "No products in this category yet. Try another category or add products in Aurora Studio."
+                : !store
+                  ? "Select a store to see products."
+                  : "No products yet. Add products in Aurora Studio."}
             </p>
           )}
           {total > limit && (

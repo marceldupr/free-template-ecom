@@ -23,6 +23,10 @@ const Popup = dynamic(
   { ssr: false }
 );
 
+/** Default pin SVG so the marker always renders (Leaflet's default icon often fails in Next.js). */
+const DEFAULT_PIN_SVG =
+  '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 36" width="28" height="42"><path fill="%2338bdf8" stroke="%230f172a" stroke-width="1.5" d="M12 0C7.31 0 3.5 3.81 3.5 8.5c0 6.5 8.5 15.5 8.5 15.5s8.5-9 8.5-15.5C20.5 3.81 16.69 0 12 0z"/><circle cx="12" cy="8.5" r="3" fill="%23fff"/></svg>';
+
 function DraggableMapContent({
   position,
   onPositionChange,
@@ -33,6 +37,13 @@ function DraggableMapContent({
   const L = typeof window !== "undefined" ? require("leaflet") : null;
   if (!L) return null;
 
+  const markerIcon = L.divIcon({
+    html: DEFAULT_PIN_SVG,
+    className: "aurora-location-pin",
+    iconSize: [28, 42],
+    iconAnchor: [14, 42],
+  });
+
   return (
     <>
       <TileLayer
@@ -41,6 +52,7 @@ function DraggableMapContent({
       />
       <Marker
         position={[position.lat, position.lng]}
+        icon={markerIcon}
         eventHandlers={{
           dragend: (e: { target: { getLatLng: () => { lat: number; lng: number } } }) => {
             const { lat, lng } = e.target.getLatLng();

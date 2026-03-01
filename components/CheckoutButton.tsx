@@ -2,7 +2,6 @@
 
 import { useState } from "react";
 import { useCart } from "./CartProvider";
-import { getApiBase, getTenantSlug } from "@/lib/aurora";
 
 export function CheckoutButton() {
   const { items, total, clearCart } = useCart();
@@ -11,15 +10,6 @@ export function CheckoutButton() {
   const handleCheckout = async () => {
     if (items.length === 0) return;
     setLoading(true);
-
-    const apiBase = getApiBase();
-    const tenantSlug = getTenantSlug();
-
-    if (!apiBase || !tenantSlug) {
-      alert("API not configured. Set NEXT_PUBLIC_AURORA_API_URL and NEXT_PUBLIC_TENANT_SLUG.");
-      setLoading(false);
-      return;
-    }
 
     const origin = typeof window !== "undefined" ? window.location.origin : "";
     const successUrl = `${origin}/checkout/success`;
@@ -37,18 +27,15 @@ export function CheckoutButton() {
     }));
 
     try {
-      const res = await fetch(
-        `${apiBase}/api/tenants/${tenantSlug}/store/checkout/sessions`,
-        {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            successUrl,
-            cancelUrl,
-            lineItems,
-          }),
-        }
-      );
+      const res = await fetch("/api/checkout/sessions", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          successUrl,
+          cancelUrl,
+          lineItems,
+        }),
+      });
 
       if (!res.ok) {
         const err = await res.json().catch(() => ({}));

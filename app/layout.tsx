@@ -3,6 +3,7 @@ import Script from "next/script";
 import "./globals.css";
 import { CartProvider } from "@/components/CartProvider";
 import { StoreProvider } from "@/components/StoreContext";
+import { AuthProvider } from "@/components/AuthProvider";
 import { Nav } from "@/components/Nav";
 import { Footer } from "@/components/Footer";
 
@@ -31,13 +32,15 @@ export default function RootLayout({
         }
       >
         <StoreProvider>
-          <CartProvider>
-            <Nav />
+          <AuthProvider>
+            <CartProvider>
+              <Nav />
             <main className="min-h-[calc(100vh-3.5rem)] flex flex-col">
               {children}
               <Footer />
             </main>
-          </CartProvider>
+            </CartProvider>
+          </AuthProvider>
         </StoreProvider>
         {process.env.NEXT_PUBLIC_AURORA_API_URL && process.env.NEXT_PUBLIC_TENANT_SLUG && (
           <Script

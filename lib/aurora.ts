@@ -16,8 +16,11 @@ const baseUrl = process.env.NEXT_PUBLIC_AURORA_API_URL ?? "";
 const apiKey = process.env.NEXT_PUBLIC_AURORA_API_KEY ?? process.env.AURORA_API_KEY ?? "";
 const tenantSlug = process.env.NEXT_PUBLIC_TENANT_SLUG ?? "";
 
+/** Optional spec URL so the SDK can adjust from the tenant OpenAPI spec (default: baseUrl + /v1/openapi.json) */
+const specUrl = baseUrl ? `${baseUrl.replace(/\/$/, "")}/v1/openapi.json` : undefined;
+
 export function createAuroraClient(): AuroraClient {
-  return new AuroraClient({ baseUrl, apiKey });
+  return new AuroraClient({ baseUrl, apiKey, specUrl });
 }
 
 export function getApiBase(): string {
@@ -89,4 +92,15 @@ export async function completeAcmeCheckout(
 export async function holmesInfer(sessionId: string): Promise<HolmesInferResult> {
   const client = createAuroraClient();
   return client.holmes.infer(sessionId);
+}
+
+/** Current user metadata and related data (e.g. addresses) when userId is provided. Uses GET /me from tenant spec. */
+export async function getMe(userId?: string): Promise<{
+  tenantId: string;
+  user?: { id: string };
+  addresses?: unknown[];
+  [key: string]: unknown;
+}> {
+  const client = createAuroraClient();
+  return client.me({ userId });
 }

@@ -1,8 +1,11 @@
 "use client";
 
 import Link from "next/link";
+import { useAuth } from "@/components/AuthProvider";
 
 export default function AccountPage() {
+  const { user, loading, signOut } = useAuth();
+
   return (
     <div className="max-w-5xl mx-auto py-12 px-4 sm:px-6">
       <h1 className="text-2xl font-bold mb-8">My Account</h1>
@@ -32,33 +35,51 @@ export default function AccountPage() {
           >
             <span>💳</span> Payment Methods
           </Link>
-          <button
-            type="button"
-            className="flex items-center gap-3 px-4 py-3 rounded-component text-red-400 hover:bg-aurora-surface w-full text-left"
-          >
-            <span>🚪</span> Sign Out
-          </button>
+          {user && (
+            <button
+              type="button"
+              onClick={() => signOut()}
+              className="flex items-center gap-3 px-4 py-3 rounded-component text-red-400 hover:bg-aurora-surface w-full text-left"
+            >
+              <span>🚪</span> Sign Out
+            </button>
+          )}
         </aside>
         <main className="md:col-span-3">
           <div className="p-6 rounded-component bg-aurora-surface border border-aurora-border">
             <h2 className="text-lg font-semibold mb-4">Profile</h2>
-            <p className="text-aurora-muted mb-4">
-              You&apos;re not signed in. Sign in or create an account to manage your profile, orders, and addresses.
-            </p>
-            <div className="flex flex-wrap gap-3">
-              <Link
-                href="/account"
-                className="px-4 py-2 rounded-component bg-aurora-accent text-aurora-bg font-medium hover:opacity-90"
-              >
-                Sign in
-              </Link>
-              <Link
-                href="/account"
-                className="px-4 py-2 rounded-component border border-aurora-border hover:bg-aurora-surface font-medium"
-              >
-                Create account
-              </Link>
-            </div>
+            {loading ? (
+              <p className="text-aurora-muted">Loading…</p>
+            ) : user ? (
+              <>
+                <p className="text-aurora-muted mb-4">
+                  Signed in as <strong className="text-white">{user.email ?? user.id}</strong>. Your orders and saved addresses are available from the menu.
+                </p>
+                <p className="text-aurora-muted text-sm">
+                  Account and checkout are powered by Aurora (app user auth). Studio users (vendor portal, workspace members) are managed separately in Aurora Studio.
+                </p>
+              </>
+            ) : (
+              <>
+                <p className="text-aurora-muted mb-4">
+                  Sign in to see your profile, orders, and saved addresses. You can browse and checkout as a guest.
+                </p>
+                <div className="flex flex-wrap gap-3">
+                  <Link
+                    href="/auth/login?returnTo=/account"
+                    className="px-4 py-2 rounded-component bg-aurora-accent text-aurora-bg font-medium hover:opacity-90"
+                  >
+                    Sign in
+                  </Link>
+                  <Link
+                    href="/auth/login?register=1&returnTo=/account"
+                    className="px-4 py-2 rounded-component border border-aurora-border hover:bg-aurora-surface font-medium"
+                  >
+                    Create account
+                  </Link>
+                </div>
+              </>
+            )}
           </div>
         </main>
       </div>

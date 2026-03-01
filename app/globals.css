@@ -1,4 +1,11 @@
 @import "leaflet/dist/leaflet.css";
+
+/* Fallback pin icon: no border/background so inline SVG is the only visible part */
+.aurora-location-pin.leaflet-div-icon {
+  background: none !important;
+  border: none !important;
+}
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;

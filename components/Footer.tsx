@@ -1,6 +1,7 @@
 import Link from "next/link";
 
 const siteName = process.env.NEXT_PUBLIC_SITE_NAME ?? "Store";
+const logoUrl = process.env.NEXT_PUBLIC_LOGO_URL;
 
 export function Footer() {
   return (
@@ -8,6 +9,15 @@ export function Footer() {
       <div className="max-w-6xl mx-auto px-4 py-12">
         <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-8">
           <div>
+            {logoUrl ? (
+              <Link href="/" className="inline-block mb-3">
+                <img
+                  src={logoUrl}
+                  alt=""
+                  className="h-14 w-auto object-contain"
+                />
+              </Link>
+            ) : null}
             <p className="text-lg font-semibold mb-2">{siteName}</p>
             <p className="text-aurora-muted text-sm">
               Your neighborhood online grocery store. Fresh produce, quality products, and convenient delivery.

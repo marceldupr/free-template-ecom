@@ -83,7 +83,7 @@ export async function YouMayAlsoLike({
                 )}
               </Link>
               {priceCents != null && (
-                <div className="mt-2" onClick={(e) => e.preventDefault()}>
+                <div className="mt-2">
                   <AddToCartButton
                     recordId={id}
                     tableSlug={catalogTableSlug}

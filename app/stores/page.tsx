@@ -50,7 +50,7 @@ export default function StoresPage() {
           const userLat = location.lat;
           const userLng = location.lng;
           list = list
-            .map((s) => {
+            .map((s: StoreItem) => {
               const loc = s.location as { coordinates?: [number, number] } | undefined;
               const coords = loc?.coordinates;
               const lat = Array.isArray(coords) ? coords[1] : undefined;
@@ -61,7 +61,7 @@ export default function StoresPage() {
                   : null;
               return { ...s, _distance: dist };
             })
-            .sort((a, b) => (a._distance ?? Infinity) - (b._distance ?? Infinity));
+            .sort((a: StoreItem & { _distance?: number | null }, b: StoreItem & { _distance?: number | null }) => (a._distance ?? Infinity) - (b._distance ?? Infinity));
         }
         setStores(list);
       } catch (e) {
@@ -119,12 +119,24 @@ export default function StoresPage() {
           <p className="text-aurora-muted py-8 text-center">Loading stores…</p>
         )}
         {error && (
-          <p className="text-red-400 py-8 text-center">
-            {error}. Configure NEXT_PUBLIC_AURORA_API_URL and AURORA_API_KEY.
+          <div className="rounded-component bg-aurora-surface border border-aurora-border p-6 max-w-lg mx-auto text-center">
+            <p className="text-red-400 font-medium mb-2">Couldn&apos;t load stores</p>
+            <p className="text-aurora-muted text-sm mb-4">
+              {error}. Set NEXT_PUBLIC_AURORA_API_URL and AURORA_API_KEY in .env.local, then ensure your tenant has stores in Aurora Studio.
+            </p>
+            <Link href="/location" className="text-aurora-accent hover:underline text-sm font-medium">
+              Set location
+            </Link>
+          </div>
+        )}
+
+        {!loading && !error && stores.length === 0 && (
+          <p className="text-aurora-muted py-8 text-center">
+            No stores found for your location. Try changing your location or add stores in Aurora Studio.
           </p>
         )}
 
-        {!loading && !error && (
+        {!loading && !error && stores.length > 0 && (
           <>
             <p className="text-aurora-muted text-sm mb-4">
               Found {stores.length} store{stores.length !== 1 ? "s" : ""} near your location
@@ -183,12 +195,6 @@ export default function StoresPage() {
               })}
             </div>
           </>
-        )}
-
-        {!loading && !error && stores.length === 0 && (
-          <p className="text-aurora-muted py-8 text-center">
-            No stores found. Add vendors in Aurora Studio.
-          </p>
         )}
       </div>
     </div>
