@@ -128,6 +128,7 @@ export default async function PromotionsPage() {
                         unitAmount={priceCents}
                         sellByWeight={sellByWeight}
                         unit={unit}
+                        imageUrl={imageUrl}
                       />
                     </div>
                   )}

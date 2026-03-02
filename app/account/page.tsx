@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import { User, Package, MapPin, CreditCard, LogOut } from "lucide-react";
 import { useAuth } from "@/components/AuthProvider";
 
 export default function AccountPage() {
@@ -15,25 +16,25 @@ export default function AccountPage() {
             href="/account"
             className="flex items-center gap-3 px-4 py-3 rounded-component bg-aurora-accent/20 text-aurora-accent font-medium"
           >
-            <span>👤</span> Profile
+            <User className="w-5 h-5 shrink-0" /> Profile
           </Link>
           <Link
             href="/account/orders"
             className="flex items-center gap-3 px-4 py-3 rounded-component text-aurora-muted hover:text-white hover:bg-aurora-surface"
           >
-            <span>📦</span> Orders
+            <Package className="w-5 h-5 shrink-0" /> Orders
           </Link>
           <Link
             href="/account/addresses"
             className="flex items-center gap-3 px-4 py-3 rounded-component text-aurora-muted hover:text-white hover:bg-aurora-surface"
           >
-            <span>📍</span> Addresses
+            <MapPin className="w-5 h-5 shrink-0" /> Addresses
           </Link>
           <Link
             href="/account/payment-methods"
             className="flex items-center gap-3 px-4 py-3 rounded-component text-aurora-muted hover:text-white hover:bg-aurora-surface"
           >
-            <span>💳</span> Payment Methods
+            <CreditCard className="w-5 h-5 shrink-0" /> Payment Methods
           </Link>
           {user && (
             <button
@@ -41,7 +42,7 @@ export default function AccountPage() {
               onClick={() => signOut()}
               className="flex items-center gap-3 px-4 py-3 rounded-component text-red-400 hover:bg-aurora-surface w-full text-left"
             >
-              <span>🚪</span> Sign Out
+              <LogOut className="w-5 h-5 shrink-0" /> Sign Out
             </button>
           )}
         </aside>

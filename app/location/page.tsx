@@ -3,6 +3,7 @@
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import dynamic from "next/dynamic";
+import { MapPin } from "lucide-react";
 import { useState, useCallback } from "react";
 import { useStore } from "@/components/StoreContext";
 
@@ -23,9 +24,9 @@ const Popup = dynamic(
   { ssr: false }
 );
 
-/** Default pin SVG so the marker always renders (Leaflet's default icon often fails in Next.js). */
+/** Store/location pin SVG: rounded teardrop, gradient fill, clear stroke (Leaflet default often fails in Next.js). */
 const DEFAULT_PIN_SVG =
-  '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 36" width="28" height="42"><path fill="%2338bdf8" stroke="%230f172a" stroke-width="1.5" d="M12 0C7.31 0 3.5 3.81 3.5 8.5c0 6.5 8.5 15.5 8.5 15.5s8.5-9 8.5-15.5C20.5 3.81 16.69 0 12 0z"/><circle cx="12" cy="8.5" r="3" fill="%23fff"/></svg>';
+  '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 42" width="32" height="42"><defs><linearGradient id="pinGrad" x1="0%" y1="0%" x2="0%" y2="100%"><stop offset="0%" stop-color="%23bae6fd"/><stop offset="100%" stop-color="%230ea5e9"/></linearGradient></defs><path fill="url(%23pinGrad)" stroke="%230c4a6e" stroke-width="1.25" stroke-linejoin="round" d="M16 1C10.5 1 6 5.5 6 11c0 7 10 18 10 18s10-11 10-18C26 5.5 21.5 1 16 1z"/><circle cx="16" cy="11" r="4" fill="%23fff" stroke="%230c4a6e" stroke-width="1"/></svg>';
 
 function DraggableMapContent({
   position,
@@ -40,8 +41,8 @@ function DraggableMapContent({
   const markerIcon = L.divIcon({
     html: DEFAULT_PIN_SVG,
     className: "aurora-location-pin",
-    iconSize: [28, 42],
-    iconAnchor: [14, 42],
+    iconSize: [32, 42],
+    iconAnchor: [16, 42],
   });
 
   return (
@@ -121,7 +122,7 @@ export default function LocationPage() {
         </div>
 
         <div className="flex items-start gap-2 text-aurora-muted text-sm">
-          <span>📍</span>
+          <MapPin className="w-4 h-4 shrink-0" />
           <span>
             {address}
             <br />

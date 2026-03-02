@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { useRouter } from "next/navigation";
+import { Store, Trash2 } from "lucide-react";
 import { useCart } from "@/components/CartProvider";
 import { useStore } from "@/components/StoreContext";
 
@@ -49,7 +50,7 @@ export default function CartPage() {
       {store && (
         <div className="flex items-center justify-between p-4 rounded-component bg-aurora-surface/80 border border-aurora-border mb-6">
           <div className="flex items-center gap-2">
-            <span>🏪</span>
+            <Store className="w-4 h-4 shrink-0" />
             <span className="text-sm">Shopping from: {store.name}</span>
             <Link href="/stores" className="text-aurora-accent hover:underline text-sm ml-1">
               View Store Details
@@ -82,7 +83,15 @@ export default function CartPage() {
                 key={item.id}
                 className="flex gap-4 p-4 rounded-component bg-aurora-surface border border-aurora-border"
               >
-                <div className="w-16 h-16 rounded-component bg-aurora-surface-hover shrink-0" />
+                <div className="w-16 h-16 rounded-component bg-aurora-surface-hover shrink-0 overflow-hidden">
+                  {item.imageUrl ? (
+                    <img
+                      src={item.imageUrl}
+                      alt=""
+                      className="w-full h-full object-cover"
+                    />
+                  ) : null}
+                </div>
                 <div className="flex-1 min-w-0">
                   <p className="font-medium">{item.name}</p>
                   <p className="text-sm text-aurora-muted">
@@ -114,7 +123,8 @@ export default function CartPage() {
                     onClick={() => removeItem(item.id)}
                     className="text-red-400 hover:text-red-300 text-sm flex items-center gap-1"
                   >
-                    🗑 Remove
+                    <Trash2 className="w-4 h-4 shrink-0" />
+                    Remove
                   </button>
                 </div>
               </div>

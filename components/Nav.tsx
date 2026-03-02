@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import { MapPin } from "lucide-react";
 import { CartLink } from "./CartLink";
 import { SearchDropdown } from "./SearchDropdown";
 import { useStore } from "./StoreContext";
@@ -80,7 +81,7 @@ export function Nav() {
               className="flex items-center gap-2 text-sm text-aurora-muted hover:text-white transition-colors min-w-0 max-w-[140px]"
               title={locationDisplay}
             >
-              <span>📍</span>
+              <MapPin className="w-4 h-4 shrink-0" />
               <span className="truncate">{locationDisplay}</span>
             </Link>
             <CartLink />

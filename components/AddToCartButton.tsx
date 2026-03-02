@@ -11,6 +11,8 @@ interface AddToCartButtonProps {
   /** Variable-weight product: show weight input, unitAmount = price_per_unit (cents) */
   sellByWeight?: boolean;
   unit?: string;
+  /** Product image URL for basket display */
+  imageUrl?: string | null;
   className?: string;
 }
 
@@ -21,6 +23,7 @@ export function AddToCartButton({
   unitAmount,
   sellByWeight,
   unit = "kg",
+  imageUrl,
   className,
 }: AddToCartButtonProps) {
   const { addItem } = useCart();
@@ -38,6 +41,7 @@ export function AddToCartButton({
         quantity: w,
         sellByWeight: true,
         unit,
+        imageUrl,
       });
     };
     return (
@@ -70,7 +74,7 @@ export function AddToCartButton({
   return (
     <button
       type="button"
-      onClick={() => addItem({ recordId, tableSlug, name, unitAmount })}
+      onClick={() => addItem({ recordId, tableSlug, name, unitAmount, imageUrl })}
       className={
         className ??
         "px-4 py-2 rounded-component bg-aurora-accent text-aurora-bg font-medium hover:opacity-90 transition-opacity"

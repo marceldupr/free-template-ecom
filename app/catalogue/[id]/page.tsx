@@ -2,6 +2,7 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { createAuroraClient } from "@/lib/aurora";
 import { AddToCartButton } from "@/components/AddToCartButton";
+import { HolmesProductViewTracker } from "@/components/HolmesProductViewTracker";
 import { ProductDetailTabs } from "@/components/ProductDetailTabs";
 import { YouMayAlsoLike } from "@/components/YouMayAlsoLike";
 
@@ -78,6 +79,7 @@ export default async function ProductPage({
 
   return (
     <div className="max-w-6xl mx-auto py-10 sm:py-14 px-4 sm:px-6">
+      <HolmesProductViewTracker productId={id} />
       <nav className="text-sm text-aurora-muted mb-6">
         <Link href="/" className="hover:text-white">Home</Link>
         {" > "}
@@ -139,6 +141,7 @@ export default async function ProductPage({
                 unitAmount={sellByWeight ? pricePerUnitCents! : priceCents!}
                 sellByWeight={sellByWeight}
                 unit={unit}
+                imageUrl={imageUrl}
                 className="px-8 py-4 rounded-component bg-aurora-accent text-aurora-bg font-bold hover:opacity-90 flex items-center gap-2"
               />
             )}

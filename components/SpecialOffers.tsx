@@ -93,6 +93,7 @@ export async function SpecialOffers() {
                   tableSlug={catalogTableSlug}
                   name={name}
                   unitAmount={priceCents}
+                  imageUrl={imageUrl}
                 />
               </div>
             )}

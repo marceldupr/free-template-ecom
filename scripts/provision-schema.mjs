@@ -1,9 +1,9 @@
 #!/usr/bin/env node
 /**
  * Provision the e-commerce schema for your Aurora tenant (first run).
- * Uses POST /v1/provision-schema with API key. Base: marketplace-base (vendors, products, vendor_products).
+ * Reads init/schema.json and POSTs to /v1/provision-schema. Base: marketplace-base.
  *
- * Requires: AURORA_API_URL, AURORA_API_KEY (tenant scope). TENANT_SLUG is not required for the API.
+ * Requires: AURORA_API_URL, AURORA_API_KEY. Run: pnpm schema:provision
  */
 import { readFileSync } from "fs";
 import { fileURLToPath } from "url";
@@ -20,7 +20,7 @@ if (!apiUrl || !apiKey) {
   process.exit(1);
 }
 
-const schemaPath = join(__dirname, "../aurora/schema.json");
+const schemaPath = join(__dirname, "../init/schema.json");
 const schema = JSON.parse(readFileSync(schemaPath, "utf8"));
 
 const base = apiUrl.replace(/\/$/, "");

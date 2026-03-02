@@ -12,14 +12,25 @@ import {
   type HolmesInferResult,
 } from "@aurora-studio/sdk";
 
-const baseUrl = process.env.NEXT_PUBLIC_AURORA_API_URL ?? "";
-const apiKey = process.env.NEXT_PUBLIC_AURORA_API_KEY ?? process.env.AURORA_API_KEY ?? "";
+const baseUrl =
+  process.env.AURORA_API_URL ??
+  process.env.NEXT_PUBLIC_AURORA_API_URL ??
+  "";
+const apiKey =
+  process.env.AURORA_API_KEY ??
+  process.env.NEXT_PUBLIC_AURORA_API_KEY ??
+  "";
 const tenantSlug = process.env.NEXT_PUBLIC_TENANT_SLUG ?? "";
 
 /** Optional spec URL so the SDK can adjust from the tenant OpenAPI spec (default: baseUrl + /v1/openapi.json) */
 const specUrl = baseUrl ? `${baseUrl.replace(/\/$/, "")}/v1/openapi.json` : undefined;
 
 export function createAuroraClient(): AuroraClient {
+  if (!baseUrl || baseUrl.startsWith("/")) {
+    throw new Error(
+      "Aurora API URL is not configured. Set AURORA_API_URL (or NEXT_PUBLIC_AURORA_API_URL) to your Aurora API root (e.g. https://api.youraurora.com)."
+    );
+  }
   return new AuroraClient({ baseUrl, apiKey, specUrl });
 }
 
@@ -41,8 +52,24 @@ export type {
   HolmesInferResult,
 };
 
-/** Meilisearch-powered product search */
+/** Meilisearch-powered product search. Uses API route from client (keeps API key server-side). */
 export async function search(params: SearchParams): Promise<SearchResult> {
+  if (typeof window !== "undefined") {
+    const qs = new URLSearchParams();
+    if (params.q != null && params.q !== "") qs.set("q", params.q);
+    if (params.limit != null) qs.set("limit", String(params.limit));
+    if (params.offset != null) qs.set("offset", String(params.offset));
+    if (params.vendorId) qs.set("vendorId", params.vendorId);
+    if (params.category) qs.set("category", params.category);
+    if (params.sort) qs.set("sort", params.sort);
+    if (params.order) qs.set("order", params.order);
+    const res = await fetch(`/api/search?${qs.toString()}`);
+    if (!res.ok) {
+      const err = (await res.json().catch(() => ({}))) as { error?: string };
+      throw new Error(err.error ?? "Search failed");
+    }
+    return res.json() as Promise<SearchResult>;
+  }
   const client = createAuroraClient();
   return client.site.search(params);
 }

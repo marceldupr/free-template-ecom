@@ -54,9 +54,21 @@ For **delivery slots**, add vendors with `location` (PostGIS), create `vendor_ca
 
 ## Holmes
 
-Holmes is auto-injected when `NEXT_PUBLIC_AURORA_API_URL` and `NEXT_PUBLIC_TENANT_SLUG` are set. It captures behavioural signals and surfaces a mission-based product bundle when confidence is high. Enable Holmes in your tenant commerce config.
+Holmes works like Google Analytics: a small script loads from the central Aurora API, sends behavioural signals, and periodically fetches AI-suggested bundles. **Scales to thousands of storefronts** — one API, one script URL, identified by `?site=tenant`.
 
-For standalone deployment, set `NEXT_PUBLIC_APP_URL` on the Aurora API to your storefront URL so Holmes redirects correctly after one-click checkout.
+**Embed (any storefront):**
+```html
+<script async src="https://api.aurora.com/api/holmes/v1/script.js?site=your-tenant"></script>
+```
+
+The script auto-captures mouse, typing, scroll; for best results, push commerce events:
+- `window.holmes.setSearch('pasta')` when user searches
+- `window.holmes.setProductsViewed(['id1','id2'])` when viewing products
+- `window.holmes.setCartCount(n)` and `window.holmes.setCartItems([...])` when cart changes
+
+Or dispatch DOM events: `holmes:search`, `holmes:productView`, `holmes:cartUpdate` (see `lib/holmes-events.ts`).
+
+This template wires search, product views, and cart updates automatically. Enable Holmes in your tenant commerce config. Set `NEXT_PUBLIC_APP_URL` on the Aurora API for correct post-checkout redirects.
 
 ## ACME Checkout
 

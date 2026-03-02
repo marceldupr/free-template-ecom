@@ -22,10 +22,26 @@ function LoginContent() {
     setLoading(true);
     try {
       const endpoint = isRegister ? "/api/auth/signup" : "/api/auth/signin";
+      const body: { email: string; password: string; options?: { emailRedirectTo?: string } } = {
+        email,
+        password,
+      };
+      // Single redirect URL in Supabase: API /v1/auth/confirm redirects to this store (no per-store allow list).
+      if (isRegister && typeof window !== "undefined") {
+        const apiBase = process.env.NEXT_PUBLIC_AURORA_API_URL ?? "";
+        const storeConfirm = `${window.location.origin}/auth/confirm`;
+        if (apiBase) {
+          body.options = {
+            emailRedirectTo: `${apiBase.replace(/\/$/, "")}/v1/auth/confirm?store=${encodeURIComponent(storeConfirm)}`,
+          };
+        } else {
+          body.options = { emailRedirectTo: storeConfirm };
+        }
+      }
       const res = await fetch(endpoint, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email, password }),
+        body: JSON.stringify(body),
       });
       const data = await res.json().catch(() => ({}));
       if (!res.ok) {

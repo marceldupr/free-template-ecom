@@ -2,7 +2,9 @@
 
 import { useState, useEffect, useRef, useCallback } from "react";
 import Link from "next/link";
+import { Search } from "lucide-react";
 import { search, type SearchHit } from "@/lib/aurora";
+import { holmesSearch } from "@/lib/holmes-events";
 
 function formatPrice(cents: number, currency = "GBP"): string {
   return new Intl.NumberFormat("en-GB", {
@@ -30,6 +32,7 @@ export function SearchDropdown({
       setHits([]);
       return;
     }
+    holmesSearch(q.trim());
     setLoading(true);
     try {
       const res = await search({
@@ -72,7 +75,7 @@ export function SearchDropdown({
   return (
     <div ref={containerRef} className="relative flex-1 max-w-xl">
       <div className="relative">
-        <span className="absolute left-3 top-1/2 -translate-y-1/2 text-aurora-muted">🔍</span>
+        <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-aurora-muted" />
         <input
           type="search"
           value={query}

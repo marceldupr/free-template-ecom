@@ -89,6 +89,7 @@ export async function YouMayAlsoLike({
                     tableSlug={catalogTableSlug}
                     name={name}
                     unitAmount={priceCents}
+                    imageUrl={imageUrl}
                   />
                 </div>
               )}

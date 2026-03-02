@@ -3,11 +3,7 @@
 import { Suspense, useState, useEffect, useCallback } from "react";
 import { useSearchParams } from "next/navigation";
 import Link from "next/link";
-import {
-  getAcmeSession,
-  completeAcmeCheckout,
-  type AcmeSession,
-} from "@/lib/aurora";
+import type { AcmeSession } from "@/lib/aurora";
 
 function formatPrice(cents: number, currency = "GBP"): string {
   return new Intl.NumberFormat("en-GB", {
@@ -37,7 +33,8 @@ function CheckoutAcmeContent() {
       setLoading(false);
       return;
     }
-    getAcmeSession(sessionId)
+    fetch(`/api/checkout/acme?session=${encodeURIComponent(sessionId)}`)
+      .then((r) => (r.ok ? r.json() : r.json().then((j) => Promise.reject(new Error(j.error ?? "Failed to load")))))
       .then(setSession)
       .catch((e) => setError(e instanceof Error ? e.message : "Failed to load checkout"))
       .finally(() => setLoading(false));
@@ -59,7 +56,16 @@ function CheckoutAcmeContent() {
         session?.requireShipping && shippingAddress.line1
           ? shippingAddress
           : undefined;
-      const result = await completeAcmeCheckout(sessionId, shipping);
+      const res = await fetch("/api/checkout/acme/complete", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ sessionId, shippingAddress: shipping }),
+      });
+      if (!res.ok) {
+        const err = (await res.json().catch(() => ({}))) as { error?: string };
+        throw new Error(err.error ?? "Payment failed");
+      }
+      const result = (await res.json()) as { redirectUrl?: string };
       if (result.redirectUrl) {
         window.location.href = result.redirectUrl;
       } else {
@@ -86,7 +92,7 @@ function CheckoutAcmeContent() {
         <p className="text-red-400 mb-6">{error}</p>
         <Link
           href="/cart"
-          className="inline-block px-6 py-3 rounded-component bg-aurora-surface border border-aurora-border hover:border-aurora-border-hover"
+          className="inline-block px-6 py-3.5 rounded-xl bg-aurora-surface/80 border border-aurora-border font-medium hover:bg-aurora-surface hover:border-aurora-accent/30 transition-all duration-200"
         >
           Back to cart
         </Link>
@@ -161,7 +167,7 @@ function CheckoutAcmeContent() {
         <div className="flex gap-3">
           <Link
             href={session.cancel_url || "/cart"}
-            className="flex-1 px-4 py-3 rounded-component border border-aurora-border text-center hover:border-aurora-border-hover"
+            className="flex-1 px-4 py-3.5 rounded-xl border border-aurora-border bg-aurora-surface/50 text-center font-medium hover:bg-aurora-surface hover:border-aurora-accent/30 transition-all duration-200"
           >
             Cancel
           </Link>
@@ -169,7 +175,7 @@ function CheckoutAcmeContent() {
             type="button"
             onClick={handlePay}
             disabled={paying}
-            className="flex-1 px-4 py-3 rounded-component bg-aurora-accent text-aurora-bg font-semibold hover:opacity-90 disabled:opacity-50 flex items-center justify-center gap-2"
+            className="flex-1 px-4 py-3.5 rounded-xl bg-gradient-to-r from-aurora-accent to-aurora-accent/90 text-aurora-bg font-bold hover:from-aurora-accent/95 hover:to-aurora-accent/80 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 transition-all duration-200 shadow-lg shadow-aurora-accent/25 hover:shadow-xl"
           >
             {paying ? "Processing…" : "Pay"}
           </button>

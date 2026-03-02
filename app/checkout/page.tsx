@@ -3,13 +3,10 @@
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
+import { MapPin } from "lucide-react";
 import { useCart } from "@/components/CartProvider";
 import { useStore } from "@/components/StoreContext";
-import {
-  createCheckoutSession,
-  getDeliverySlots,
-  type DeliverySlot,
-} from "@/lib/aurora";
+import type { DeliverySlot } from "@/lib/aurora";
 
 function formatPrice(cents: number): string {
   return new Intl.NumberFormat("en-GB", {
@@ -40,8 +37,9 @@ export default function CheckoutPage() {
 
   useEffect(() => {
     if (location) {
-      getDeliverySlots(location.lat, location.lng)
-        .then((r) => setSlots(r.data ?? []))
+      fetch(`/api/delivery-slots?lat=${location.lat}&lng=${location.lng}`)
+        .then((r) => r.json())
+        .then((data) => setSlots(data.data ?? []))
         .catch(() => setSlots([]));
     } else {
       setSlots([]);
@@ -56,24 +54,34 @@ export default function CheckoutPage() {
     setLoading(true);
     try {
       const origin = typeof window !== "undefined" ? window.location.origin : "";
-      const res = await createCheckoutSession({
-        lineItems: items.map((i) => ({
-          productId: i.recordId,
-          tableSlug: i.tableSlug,
-          quantity: i.quantity,
-          sellByWeight: i.sellByWeight,
-          priceData: {
-            unitAmount: i.unitAmount,
-            currency: "GBP",
-            productData: { name: i.name },
-          },
-        })),
-        successUrl: `${origin}/checkout/success`,
-        cancelUrl: `${origin}/cart`,
-        deliverySlotId: selectedSlotId ?? undefined,
+      const res = await fetch("/api/checkout/sessions", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          successUrl: `${origin}/checkout/success`,
+          cancelUrl: `${origin}/cart`,
+          lineItems: items.map((i) => ({
+            productId: i.recordId,
+            tableSlug: i.tableSlug,
+            quantity: i.quantity,
+            sellByWeight: i.sellByWeight,
+            priceData: {
+              unitAmount: i.unitAmount,
+              currency: "GBP",
+              productData: { name: i.name },
+            },
+          })),
+          deliverySlotId: selectedSlotId ?? undefined,
+        }),
       });
+      if (!res.ok) {
+        const err = (await res.json().catch(() => ({}))) as { error?: string };
+        throw new Error(err.error ?? "Checkout failed");
+      }
+      const data = (await res.json()) as { url?: string };
       clearCart();
-      if (res.url) window.location.href = res.url;
+      if (data.url) window.location.href = data.url;
+      else throw new Error("No checkout URL returned");
     } catch (e) {
       alert(e instanceof Error ? e.message : "Checkout failed");
     } finally {
@@ -139,7 +147,8 @@ export default function CheckoutPage() {
                 {location && (
                   <div className="p-4 rounded-component bg-aurora-surface border border-aurora-border mb-4">
                     <p className="text-sm flex items-center gap-2">
-                      <span>📍</span> {location.address ?? `Lat: ${location.lat}, Lng: ${location.lng}`}
+                      <MapPin className="w-4 h-4 shrink-0" />
+                      {location.address ?? `Lat: ${location.lat}, Lng: ${location.lng}`}
                     </p>
                     <p className="text-aurora-muted text-xs mt-1">
                       Move the map to position the pin at your delivery location.
@@ -271,12 +280,12 @@ export default function CheckoutPage() {
                 <span>{formatPrice(grandTotal)}</span>
               </div>
             </div>
-            <div className="flex gap-2 mt-4">
+            <div className="flex gap-3 mt-6">
               {step > 1 && (
                 <button
                   type="button"
                   onClick={() => setStep(step - 1)}
-                  className="flex-1 py-3 rounded-component border border-aurora-border"
+                  className="flex-1 py-3.5 px-5 rounded-xl border border-aurora-border bg-aurora-surface/50 hover:bg-aurora-surface hover:border-aurora-accent/30 font-medium transition-all duration-200 shadow-sm hover:shadow-md"
                 >
                   Back
                 </button>
@@ -285,7 +294,7 @@ export default function CheckoutPage() {
                 <button
                   type="button"
                   onClick={() => setStep(step + 1)}
-                  className="flex-1 py-3 rounded-component bg-aurora-accent text-aurora-bg font-bold"
+                  className="flex-1 py-3.5 px-5 rounded-xl bg-gradient-to-r from-aurora-accent to-aurora-accent/90 text-aurora-bg font-bold hover:from-aurora-accent/95 hover:to-aurora-accent/80 transition-all duration-200 shadow-lg shadow-aurora-accent/25 hover:shadow-xl hover:shadow-aurora-accent/30 hover:-translate-y-0.5"
                 >
                   {step === 2 ? "Proceed to Payment" : "Continue"}
                 </button>
@@ -294,7 +303,7 @@ export default function CheckoutPage() {
                   type="button"
                   onClick={handlePayment}
                   disabled={loading}
-                  className="flex-1 py-3 rounded-component bg-aurora-accent text-aurora-bg font-bold disabled:opacity-50"
+                  className="flex-1 py-3.5 px-5 rounded-xl bg-gradient-to-r from-aurora-accent to-aurora-accent/90 text-aurora-bg font-bold disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200 shadow-lg shadow-aurora-accent/25 hover:shadow-xl hover:shadow-aurora-accent/30 hover:-translate-y-0.5 disabled:hover:translate-y-0 disabled:hover:shadow-lg"
                 >
                   {loading ? "Processing…" : "Place Order & Pay"}
                 </button>

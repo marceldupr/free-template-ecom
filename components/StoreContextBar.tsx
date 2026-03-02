@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import { Store, MapPin } from "lucide-react";
 import { useStore } from "./StoreContext";
 
 export function StoreContextBar() {
@@ -11,7 +12,7 @@ export function StoreContextBar() {
       <div className="border-b border-aurora-border bg-aurora-surface/50 px-4 py-2">
         <div className="max-w-6xl mx-auto flex items-center justify-between gap-4">
           <div className="flex items-center gap-2 text-sm text-aurora-muted">
-            <span>🏪</span>
+            <Store className="w-4 h-4 shrink-0" />
             <span>Shopping from: {store.name}</span>
             <Link
               href="/stores"
@@ -41,7 +42,8 @@ export function StoreContextBar() {
           href="/location"
           className="inline-flex items-center gap-2 px-4 py-2 rounded-component bg-aurora-accent text-aurora-bg font-medium text-sm hover:opacity-90"
         >
-          <span>📍</span> Set location & choose store
+          <MapPin className="w-4 h-4 shrink-0" />
+          Set location & choose store
         </Link>
       </div>
     </div>

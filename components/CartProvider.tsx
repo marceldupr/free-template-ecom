@@ -8,6 +8,7 @@ import {
   useEffect,
   type ReactNode,
 } from "react";
+import { holmesCartUpdate } from "@/lib/holmes-events";
 
 export interface CartItem {
   id: string;
@@ -19,6 +20,8 @@ export interface CartItem {
   /** Variable-weight product: quantity is weight, unit is display unit */
   sellByWeight?: boolean;
   unit?: string;
+  /** Product image URL for basket display */
+  imageUrl?: string | null;
 }
 
 const CART_KEY = "aurora-cart";
@@ -60,6 +63,17 @@ export function CartProvider({ children }: { children: ReactNode }) {
 
   useEffect(() => {
     if (mounted) saveCart(items);
+  }, [items, mounted]);
+
+  useEffect(() => {
+    if (!mounted) return;
+    const count = items.reduce((s, i) => s + i.quantity, 0);
+    const holmesItems = items.map((i) => ({
+      id: i.recordId,
+      name: i.name,
+      price: i.unitAmount,
+    }));
+    holmesCartUpdate(count, holmesItems);
   }, [items, mounted]);
 
   const addItem = useCallback((item: Omit<CartItem, "id" | "quantity"> & { quantity?: number }) => {

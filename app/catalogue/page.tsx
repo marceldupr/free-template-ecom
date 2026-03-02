@@ -8,6 +8,16 @@ import { useStore } from "@/components/StoreContext";
 import { search, createAuroraClient } from "@/lib/aurora";
 import type { SearchHit } from "@/lib/aurora";
 
+const DEFAULT_CATEGORIES = [
+  { name: "Bakery Items", slug: "bakery-items" },
+  { name: "Frozen Foods", slug: "frozen-foods" },
+  { name: "Vegetables", slug: "vegetables" },
+  { name: "Fruits", slug: "fruits" },
+  { name: "Dairy Products", slug: "dairy-products" },
+  { name: "Snacks", slug: "snacks" },
+  { name: "Beverages", slug: "beverages" },
+];
+
 function getImageUrl(record: Record<string, unknown>): string | null {
   const url = (record as SearchHit).image_url ?? record.image_url ?? record.image ?? record.thumbnail ?? record.photo;
   return url ? String(url) : null;
@@ -43,7 +53,35 @@ function CatalogueContent() {
   const [catalogSlug, setCatalogSlug] = useState<string | null>(null);
   const [currency, setCurrency] = useState("GBP");
   const [page, setPage] = useState(0);
+  const [categories, setCategories] = useState(DEFAULT_CATEGORIES);
   const limit = 24;
+
+  useEffect(() => {
+    let cancelled = false;
+    (async () => {
+      try {
+        const aurora = createAuroraClient();
+        const config = await aurora.store.config();
+        const categorySlug = (config as { categoryTableSlug?: string }).categoryTableSlug;
+        if (!cancelled && config.enabled && categorySlug) {
+          const { data } = await aurora.tables(categorySlug).records.list({ limit: 20 });
+          if (data?.length) {
+            setCategories(
+              data.map((r: Record<string, unknown>) => ({
+                name: String(r.name ?? r.slug ?? r.id ?? ""),
+                slug: String(r.slug ?? r.name ?? r.id ?? "")
+                  .toLowerCase()
+                  .replace(/\s+/g, "-"),
+              }))
+            );
+          }
+        }
+      } catch {
+        /* use defaults */
+      }
+    })();
+    return () => { cancelled = true; };
+  }, []);
 
   const loadProducts = useCallback(async () => {
     setLoading(true);
@@ -103,24 +141,47 @@ function CatalogueContent() {
     <div className="max-w-6xl mx-auto py-10 sm:py-16 px-4 sm:px-6">
       <h1 className="text-xl sm:text-2xl font-bold mb-4">Products</h1>
 
+      <div className="flex flex-wrap items-center gap-2 mb-4">
+        <Link
+          href="/catalogue"
+          className={`px-4 py-2 rounded-component text-sm font-medium transition-colors ${
+            !category ? "bg-aurora-accent text-aurora-bg" : "bg-aurora-surface/80 border border-aurora-border hover:border-aurora-accent/40"
+          }`}
+        >
+          All
+        </Link>
+        {categories.map((cat) => (
+          <Link
+            key={cat.slug}
+            href={`/catalogue?category=${encodeURIComponent(cat.slug)}`}
+            className={`px-4 py-2 rounded-component text-sm font-medium transition-colors ${
+              category === cat.slug ? "bg-aurora-accent text-aurora-bg" : "bg-aurora-surface/80 border border-aurora-border hover:border-aurora-accent/40"
+            }`}
+          >
+            {cat.name}
+          </Link>
+        ))}
+      </div>
+
       <div className="flex flex-wrap items-center gap-2 mb-6">
+        <span className="text-aurora-muted text-sm mr-2">Sort:</span>
         {tabs.map((t) => (
           <button
             key={t.id}
             type="button"
             onClick={() => { setTab(t.id); setPage(0); }}
-            className={`px-4 py-2 rounded-component text-sm font-medium transition-colors ${
+            className={`px-3 py-1.5 rounded-component text-xs font-medium transition-colors ${
               tab === t.id
-                ? "bg-aurora-accent text-aurora-bg"
-                : "bg-aurora-surface/80 border border-aurora-border hover:border-aurora-accent/40"
+                ? "bg-aurora-accent/20 text-aurora-accent border border-aurora-accent/40"
+                : "bg-aurora-surface/50 border border-aurora-border/50 text-aurora-muted hover:text-white hover:border-aurora-border"
             }`}
           >
             {t.label}
           </button>
         ))}
         {store && (
-          <span className="text-aurora-muted text-sm flex items-center gap-1 ml-2">
-            🏪 Store products
+          <span className="text-aurora-muted text-xs flex items-center gap-1 ml-2">
+            Store products
           </span>
         )}
       </div>
@@ -190,6 +251,7 @@ function CatalogueContent() {
                         unitAmount={priceCents}
                         sellByWeight={sellByWeight}
                         unit={unit}
+                        imageUrl={imageUrl}
                       />
                     </div>
                   )}
