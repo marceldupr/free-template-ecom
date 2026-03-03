@@ -26,8 +26,7 @@ export async function runFirstRunProvision(): Promise<void> {
 
   const baseUrl = apiUrl.replace(/\/$/, "");
 
-  if (await tenantHasTables(baseUrl, apiKey)) return;
-
+  // Always provision: importSchemaForTenant merges (skips existing tables/fields).
   const schema = loadSchema();
   const result = await provisionSchema(baseUrl, apiKey, schema);
 
