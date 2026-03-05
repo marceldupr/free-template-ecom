@@ -73,7 +73,9 @@ export default async function ProductPage({
   const pricePerUnitCents = pricePerUnit != null ? Math.round(pricePerUnit * 100) : undefined;
   const imageUrl = getImageUrl(record);
   const vendorName = record.vendor_name as string | undefined;
-  const categoryName = (record.category as Record<string, unknown>)?.name ?? record.subcategory ?? "Products";
+  const categoryObj = record.category as Record<string, unknown> | undefined;
+  const categoryName = categoryObj?.name ?? record.subcategory ?? "Products";
+  const categoryId = (record.category_id ?? categoryObj?.id) as string | undefined;
   const stockQuantity = record.stock_quantity as number | undefined;
   const description = record.description as string | undefined;
 
@@ -160,7 +162,11 @@ export default async function ProductPage({
       </div>
 
       <div className="mt-12">
-        <YouMayAlsoLike productId={id} catalogTableSlug={catalogTableSlug} />
+        <YouMayAlsoLike
+          productId={id}
+          catalogTableSlug={catalogTableSlug}
+          categoryId={categoryId}
+        />
       </div>
     </div>
   );

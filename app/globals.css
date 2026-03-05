@@ -1,5 +1,33 @@
 @import "leaflet/dist/leaflet.css";
 
+/* Theme: dark (default) vs light via NEXT_PUBLIC_THEME=light */
+:root,
+[data-theme="dark"] {
+  --aurora-bg: #0a0e17;
+  --aurora-surface: rgba(30, 41, 59, 0.6);
+  --aurora-surface-hover: rgba(51, 65, 85, 0.6);
+  --aurora-border: rgba(148, 163, 184, 0.15);
+  --aurora-muted: rgba(248, 250, 252, 0.7);
+  --aurora-text: #f8fafc;
+}
+
+[data-theme="light"] {
+  --aurora-bg: #f8fafc;
+  --aurora-surface: rgba(255, 255, 255, 0.9);
+  --aurora-surface-hover: rgba(226, 232, 240, 0.9);
+  --aurora-border: rgba(30, 41, 59, 0.2);
+  --aurora-muted: rgba(30, 41, 59, 0.7);
+  --aurora-text: #0f172a;
+}
+
+/* Light theme: text-white should show dark text for contrast */
+[data-theme="light"] .text-white {
+  color: var(--aurora-text) !important;
+}
+[data-theme="light"] .hover\:text-white:hover {
+  color: var(--aurora-text) !important;
+}
+
 /* Fallback pin icon: no border/background so inline SVG is the only visible part */
 .aurora-location-pin.leaflet-div-icon,
 .aurora-store-pin.leaflet-div-icon {

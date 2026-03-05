@@ -2,12 +2,14 @@ import { StoreContextBar } from "@/components/StoreContextBar";
 import { HeroBanner } from "@/components/HeroBanner";
 import { SpecialOffers } from "@/components/SpecialOffers";
 import { CategoryNav } from "@/components/CategoryNav";
+import { HolmesHomeRefresher } from "@/components/HolmesHomeRefresher";
 
 export const dynamic = "force-dynamic";
 
 export default function HomePage() {
   return (
     <>
+      <HolmesHomeRefresher />
       <div className="max-w-6xl mx-auto px-4 sm:px-6">
         <StoreContextBar />
       </div>

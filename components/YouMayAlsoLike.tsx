@@ -22,9 +22,11 @@ function getDisplayName(record: Record<string, unknown>): string {
 export async function YouMayAlsoLike({
   productId,
   catalogTableSlug,
+  categoryId,
 }: {
   productId: string;
   catalogTableSlug: string;
+  categoryId?: string | null;
 }) {
   let records: Record<string, unknown>[] = [];
   let currency = "GBP";
@@ -33,11 +35,13 @@ export async function YouMayAlsoLike({
     const aurora = createAuroraClient();
     const config = await aurora.store.config();
     currency = (config as { currency?: string }).currency ?? "GBP";
-    const result = await aurora.tables(catalogTableSlug).records.list({
-      limit: 4,
+    const query: { limit: number; sort: string; order: "desc"; category_id?: string } = {
+      limit: 8,
       sort: "created_at",
       order: "desc",
-    });
+    };
+    if (categoryId) query.category_id = categoryId;
+    const result = await aurora.tables(catalogTableSlug).records.list(query);
     records = (result.data ?? []).filter((r) => String(r.id) !== productId).slice(0, 4);
   } catch {
     return null;
